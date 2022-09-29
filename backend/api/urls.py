@@ -30,7 +30,7 @@ urlpatterns = [
         name='favorite'
     ),
     path(
-        'users/<int:id>/subscribe/',
+        'users/<author_id>/subscribe/',
         SubscribeView.as_view(),
         name='subscribe'
     ),

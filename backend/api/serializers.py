@@ -262,7 +262,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 class ShowSubscriptionsSerializer(serializers.ModelSerializer):
     """Serailizer for display user subscriptions."""
 
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
