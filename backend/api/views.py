@@ -2,12 +2,9 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, mixins, generics
-from rest_framework.decorators import api_view
+from rest_framework import viewsets, mixins, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from backend.users.models import Follow
+from users.models import Follow
 
 from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
@@ -45,18 +42,20 @@ class SubscribeView(viewsets.ModelViewSet):
 class ShowSubscriptionsView(viewsets.ReadOnlyModelViewSet):
     """Show subscriptions."""
 
-    permission_classes = [IsAuthenticated, ]
+    #permission_classes = [IsAuthenticated, ]
     pagination_class = CustomPagination
-    queryset = Follow.objects.all()
     serializer_class = ShowSubscriptionsSerializer
 
+    def get_queryset(self):
+        return User.objects.filter(following__user=self.request.user)
 
 class FavoriteView(mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    viewsets.GenericViewSet):
     """Add & delete favorite recipes."""
 
-    permission_classes = [IsAuthenticated, ]
+    # takes 1 positional argument but 2 were given
+    #permission_classes = [IsAuthenticated, ]
     pagination_class = CustomPagination
     serializer_class = FavoriteSerializer
     queryset = Favorite.objects.all()
@@ -83,7 +82,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Add & update & delete & list recipes."""
 
-    permission_classes = [IsAuthorOrAdminOrReadOnly, ]
+    #permission_classes = [IsAuthorOrAdminOrReadOnly, ]
     pagination_class = CustomPagination
     queryset = Recipe.objects.all()
     filter_backends = [DjangoFilterBackend, ]
@@ -105,7 +104,8 @@ class ShoppingCartView(mixins.CreateModelMixin,
                        viewsets.GenericViewSet):
     """Add & delete recipe in shopping card."""
 
-    permission_classes = [IsAuthenticated, ]
+    #  !!!takes 1 positional argument but 2 were given
+    #permission_classes = [IsAuthenticated, ]
     serializer_class = ShoppingCartSerializer
     queryset = Recipe.objects.all()
 

@@ -48,7 +48,7 @@ class Ingredient(models.Model):
             models.UniqueConstraint(
                 fields=('name', 'measurement_unit'),
                 name='ingredient_measurement_unit_unique'
-            )
+            ),
         )
 
     def __str__(self):
@@ -57,13 +57,13 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     author = models.ForeignKey(
-        'Автор публикации',
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Автор публикации'
     )
     name = models.CharField(
         'Название рецепта',
-        max_length=200
+        max_length=200,
     )
     image = models.ImageField(
         'Фото',
@@ -122,9 +122,9 @@ class IngredientRecipe(models.Model):
     class Meta:
         constraints = (
             models.UniqueConstraint(
-                fields=('recipe', 'ingredient',),
+                fields=('recipe', 'ingredient'),
                 name='recipe_ingredient_unique'
-            )
+            ),
         )
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
@@ -170,7 +170,7 @@ class RecipeTag(models.Model):
             models.UniqueConstraint(
                 fields=('recipe', 'tag'),
                 name='recipe_tag_unique'
-            )
+            ),
         )
 
 
@@ -218,5 +218,5 @@ class Favorite(models.Model):
             models.UniqueConstraint(
                 fields=('user', 'recipe'),
                 name='user_favorite_unique'
-            )
+            ),
         )
