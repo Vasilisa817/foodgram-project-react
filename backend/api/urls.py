@@ -2,44 +2,44 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from api.views import (FavoriteView, IngredientViewSet, RecipeViewSet,
-                    ShoppingCartView, ShowSubscriptionsView, SubscribeView,
-                    TagViewSet, DownloadShoppingCart)
+                       ShoppingCartView, ShowSubscriptionsView, SubscribeView,
+                       TagViewSet, DownloadShoppingCart)
 
 app_name = 'api'
 
 router = DefaultRouter()
 
-router.register('ingredients', IngredientViewSet, basename='ingredients') #ok
-router.register('recipes', RecipeViewSet, basename='recipes') #ok
-router.register('tags', TagViewSet, basename='tags') #ok
+router.register('ingredients', IngredientViewSet, basename='ingredients')
+router.register('recipes', RecipeViewSet, basename='recipes')
+router.register('tags', TagViewSet, basename='tags')
 
 urlpatterns = [
     path(
-        'recipes/download_shopping_cart/', #ok
+        'recipes/download_shopping_cart/',
         DownloadShoppingCart.as_view(),
         name='download_shopping_cart'
     ),
     path(
-        'recipes/<int:id>/shopping_cart/', #takes 1 positional argument but 2 were given
-        ShoppingCartView,
+        r'recipes/<recipe_id>/shopping_cart/',
+        ShoppingCartView.as_view({'post': 'create', 'delete': 'destroy'}),
         name='shopping_cart'
     ),
     path(
-        'recipes/<int:id>/favorite/', #takes 1 positional argument but 2 were given
-        FavoriteView,
+        r'recipes/<recipe_id>/favorite/',
+        FavoriteView.as_view({'post': 'create', 'delete': 'destroy'}),
         name='favorite'
     ),
     path(
-        'users/<author_id>/subscribe/',
-        SubscribeView,
+        r'users/<author_id>/subscribe/',
+        SubscribeView.as_view({'post': 'create', 'delete': 'destroy'}),
         name='subscribe'
     ),
     path(
-        'users/subscriptions/', #takes 1 positional argument but 2 were given
-        ShowSubscriptionsView,
+        'users/subscriptions/',
+        ShowSubscriptionsView.as_view({'get': 'list', }),
         name='subscriptions'
     ),
     path('auth/', include('djoser.urls.authtoken')),
-    path('', include('djoser.urls')), #ok
+    path('', include('djoser.urls')),
     path('', include(router.urls)),
 ]

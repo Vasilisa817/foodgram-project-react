@@ -3,34 +3,28 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins, generics
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from users.models import Follow
+from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
 
-from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
-                            ShoppingCart, Tag)
+from recipes.models import (Ingredient, Recipe, IngredientRecipe, Tag)
 from users.models import Follow, User
 
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAuthorOrAdminOrReadOnly
 from api.serializers import (CreateRecipeSerializer, FavoriteSerializer,
-                          IngredientSerializer, RecipeSerialiser,
-                          ShoppingCartSerializer, ShowSubscriptionsSerializer,
-                          SubscriptionSerializer, TagSerializer)
+                             IngredientSerializer, RecipeSerialiser,
+                             ShoppingCartSerializer,
+                             ShowSubscriptionsSerializer,
+                             SubscriptionSerializer, TagSerializer)
 
 
-class SubscribeView(viewsets.ModelViewSet):
-    """Subscribe & unsubscribe. """
+class SubscribeView(mixins.CreateModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
+    """Subscribe & unsubscribe."""
 
     serializer_class = SubscriptionSerializer
     permission_classes = [IsAuthenticated, ]
-
-    def perform_create(self, serializer):
-        author = get_object_or_404(
-            User,
-            pk=self.kwargs.get('author_id'),
-        )
-        serializer.save(author=author, user=self.request.user)
 
     def get_queryset(self):
         author = get_object_or_404(
@@ -39,26 +33,63 @@ class SubscribeView(viewsets.ModelViewSet):
         )
         return author.follower.all()
 
+    def perform_create(self, serializer):
+        author = get_object_or_404(
+            User,
+            pk=self.kwargs.get('author_id'),
+        )
+        serializer.save(author=author, user=self.request.user)
+
+    def perform_destroy(self, serializer):
+        author = get_object_or_404(
+            User,
+            pk=self.kwargs.get('author_id'),
+        )
+        serializer.delete(author=author, user=self.request.user)
+
+
 class ShowSubscriptionsView(viewsets.ReadOnlyModelViewSet):
     """Show subscriptions."""
 
-    #permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, ]
     pagination_class = CustomPagination
     serializer_class = ShowSubscriptionsSerializer
 
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)
 
-class FavoriteView(mixins.CreateModelMixin,
-                   mixins.DestroyModelMixin,
-                   viewsets.GenericViewSet):
+
+class BaseMixinView(mixins.CreateModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
+    """Base view for add & delete recipes in favorite & shopping_card."""
+
+    permission_classes = [IsAuthenticated, ]
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
+        return recipe
+
+    def perform_create(self, serializer):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
+        serializer.save(recipe=recipe, user=self.request.user)
+
+    def perform_destroy(self, serializer):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
+        serializer.delete(recipe=recipe, user=self.request.user)
+
+
+class FavoriteView(BaseMixinView):
     """Add & delete favorite recipes."""
 
-    # takes 1 positional argument but 2 were given
-    #permission_classes = [IsAuthenticated, ]
-    pagination_class = CustomPagination
     serializer_class = FavoriteSerializer
-    queryset = Favorite.objects.all()
+
+
+class ShoppingCartView(BaseMixinView):
+    """Add & delete recipe in shopping card."""
+
+    serializer_class = ShoppingCartSerializer
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -82,14 +113,14 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Add & update & delete & list recipes."""
 
-    #permission_classes = [IsAuthorOrAdminOrReadOnly, ]
+    permission_classes = [IsAuthorOrAdminOrReadOnly, ]
     pagination_class = CustomPagination
     queryset = Recipe.objects.all()
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method in SAFE_METHODS:
             return RecipeSerialiser
         return CreateRecipeSerializer
 
@@ -97,17 +128,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context.update({'request': self.request})
         return context
-
-
-class ShoppingCartView(mixins.CreateModelMixin,
-                       mixins.DestroyModelMixin,
-                       viewsets.GenericViewSet):
-    """Add & delete recipe in shopping card."""
-
-    #  !!!takes 1 positional argument but 2 were given
-    #permission_classes = [IsAuthenticated, ]
-    serializer_class = ShoppingCartSerializer
-    queryset = Recipe.objects.all()
 
 
 class DownloadShoppingCart(generics.ListAPIView):
@@ -131,6 +151,9 @@ class DownloadShoppingCart(generics.ListAPIView):
             if num < ingredients.count() - 1:
                 ingredient_list += ', '
         file = 'shopping_list'
-        response = HttpResponse(ingredient_list, 'Content-Type: application/pdf')
+        response = HttpResponse(
+            ingredient_list,
+            'Content-Type: application/pdf'
+        )
         response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
         return response

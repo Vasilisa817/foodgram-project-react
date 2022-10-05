@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 
 from django.db import models
 
+
 class UserRole:
     USER = 'user'
     ADMIN = 'admin'
@@ -9,6 +10,7 @@ class UserRole:
         (USER, 'USER'),
         (ADMIN, 'ADMIN')
     ]
+
 
 class User(AbstractUser):
     username = models.CharField(
@@ -34,9 +36,6 @@ class User(AbstractUser):
         choices=UserRole.choices,
         default=UserRole.USER,
     )
-    #is_active = models.BooleanField(default=True)
-    #is_staff = models.BooleanField(default=False)
-    #is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
