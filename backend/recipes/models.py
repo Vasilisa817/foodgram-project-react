@@ -133,6 +133,7 @@ class IngredientRecipe(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(
         User,
+        related_name='favorite_recipe',
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(

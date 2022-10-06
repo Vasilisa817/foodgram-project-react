@@ -1,12 +1,13 @@
 import os
 
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY', default='1234567890')
 
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='127.0.0.1').split(' ')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='localhost:8000').split(' ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,7 +22,7 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
     'colorfield',
-    'users.apps.UsersConfig',
+    'users',
     'api',
     'recipes',
 ]
@@ -145,7 +146,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMPTY = '-'
 
-CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1',
-]
+
 CORS_URLS_REGEX = r'^/api/.*$'
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+)
