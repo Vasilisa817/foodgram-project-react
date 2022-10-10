@@ -2,20 +2,21 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, mixins, generics
+from rest_framework import status, viewsets, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
+from rest_framework.response import Response
 
-from recipes.models import (Ingredient, Recipe, IngredientRecipe, Tag)
+from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
+                            ShoppingCart, Tag)
 from users.models import Follow, User
 
-from api.filters import IngredientFilter, RecipeFilter
-from api.pagination import CustomPagination
-from api.permissions import IsAuthorOrAdminOrReadOnly
-from api.serializers import (CreateRecipeSerializer, FavoriteSerializer,
-                             IngredientSerializer, RecipeSerialiser,
-                             ShoppingCartSerializer,
-                             ShowSubscriptionsSerializer,
-                             SubscriptionSerializer, TagSerializer)
+from .filters import RecipeFilter
+from .pagination import CustomPagination
+from .permissions import IsAuthorOrAdminOrReadOnly
+from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
+                          IngredientSerializer, RecipeSerialiser,
+                          ShoppingCartSerializer, ShowSubscriptionsSerializer,
+                          SubscriptionSerializer, TagSerializer)
 
 
 class SubscribeView(mixins.CreateModelMixin,
@@ -25,27 +26,23 @@ class SubscribeView(mixins.CreateModelMixin,
 
     serializer_class = SubscriptionSerializer
     permission_classes = [IsAuthenticated, ]
+    queryset = Follow.objects.all()
 
-    def get_queryset(self):
-        author = get_object_or_404(
-            Follow,
-            authoer=self.kwargs.get('author_id')
-        )
-        return author.follower.all()
-
-    def perform_create(self, serializer):
+    def create(self, serializer, **kwargs):
         author = get_object_or_404(
             User,
             pk=self.kwargs.get('author_id'),
         )
-        serializer.save(author=author, user=self.request.user)
+        Follow.objects.create(author=author, user=self.request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def perform_destroy(self, serializer):
+    def destroy(self, serializer, *args, **kwargs):
         author = get_object_or_404(
             User,
             pk=self.kwargs.get('author_id'),
         )
-        serializer.delete(author=author, user=self.request.user)
+        Follow.objects.filter(author=author, user=self.request.user).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ShowSubscriptionsView(viewsets.ReadOnlyModelViewSet):
@@ -58,44 +55,42 @@ class ShowSubscriptionsView(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)
 
-
-class BaseMixinView(mixins.CreateModelMixin,
-                    mixins.DestroyModelMixin,
-                    viewsets.GenericViewSet):
-    """Base view for add & delete recipes in favorite & shopping_card."""
+class FavoriteView(mixins.CreateModelMixin,
+                   mixins.ListModelMixin,
+                   mixins.DestroyModelMixin,
+                   viewsets.GenericViewSet):
+    """Add & delete recipes."""
 
     permission_classes = [IsAuthenticated, ]
     pagination_class = CustomPagination
-
-    def get_queryset(self):
-        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
-        return recipe
-
-    def perform_create(self, serializer):
-        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
-        serializer.save(recipe=recipe, user=self.request.user)
-
-    def perform_destroy(self, serializer):
-        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('recipe_id'))
-        serializer.delete(recipe=recipe, user=self.request.user)
-
-
-class FavoriteView(BaseMixinView):
-    """Add & delete favorite recipes."""
-
     serializer_class = FavoriteSerializer
 
+    def get_queryset(self):
+        recipe = get_object_or_404(Favorite, user = self.request.user)
+        return recipe
 
-class ShoppingCartView(BaseMixinView):
-    """Add & delete recipe in shopping card."""
+    def create(self, serializer, **kwargs):
+        recipe = get_object_or_404(
+            Recipe,
+            pk=self.kwargs.get('recipe_id')
+        )
+        Favorite.objects.create(recipe=recipe, user=self.request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    serializer_class = ShoppingCartSerializer
+    def destroy(self, serializer, *args, **kwargs):
+        recipe = get_object_or_404(
+            Recipe,
+            pk=self.kwargs.get('recipe_id')
+        )
+        Favorite.objects.filter(recipe=recipe, user=self.request.user).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """List tags."""
 
     permission_classes = [AllowAny, ]
+    pagination_class = None
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
 
@@ -104,9 +99,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """List ingredients."""
 
     permission_classes = [AllowAny, ]
+    pagination_class = None
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
-    filter_backends = [IngredientFilter, ]
     search_fields = ['^name', ]
 
 
@@ -118,9 +113,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = RecipeFilter
-
+    
     def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
+        if self.action in SAFE_METHODS:
             return RecipeSerialiser
         return CreateRecipeSerializer
 
@@ -130,16 +125,40 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return context
 
 
-class DownloadShoppingCart(generics.ListAPIView):
-    """Dowload shopping card."""
+class ShoppingCartView(mixins.CreateModelMixin,
+                       mixins.ListModelMixin,
+                       mixins.DestroyModelMixin,
+                       viewsets.GenericViewSet):
+    """Add & delete & download shopping cart."""
 
     permission_classes = [IsAuthenticated, ]
+    serializer_class = ShoppingCartSerializer
+    queryset = ShoppingCart.objects.all()
 
-    def get(self, request, id, format=None):
+    def get_queryset(self):
+        recipe = get_object_or_404(ShoppingCart, user = self.request.user)
+        return recipe
 
+    def create(self, serializer, **kwargs):
+        recipe = get_object_or_404(
+            Recipe,
+            pk=self.kwargs.get('recipe_id')
+        )
+        ShoppingCart.objects.create(recipe=recipe, user=self.request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, serializer, *args, **kwargs):
+        recipe = get_object_or_404(
+            Recipe,
+            pk=self.kwargs.get('recipe_id')
+        )
+        ShoppingCart.objects.filter(recipe=recipe, user=self.request.user).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def download_list(self, serializer, **kwargs):
         ingredient_list = "Cписок покупок:"
         ingredients = IngredientRecipe.objects.filter(
-            recipe__shopping_cart__user=request.user
+            recipe__shopping_cart__user=self.request.user
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
@@ -151,9 +170,6 @@ class DownloadShoppingCart(generics.ListAPIView):
             if num < ingredients.count() - 1:
                 ingredient_list += ', '
         file = 'shopping_list'
-        response = HttpResponse(
-            ingredient_list,
-            'Content-Type: application/pdf'
-        )
+        response = HttpResponse(ingredient_list, 'Content-Type: application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
         return response

@@ -24,6 +24,7 @@ class Tag(models.Model):
     )
 
     class Meta:
+        ordering = ('id',)
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
@@ -128,6 +129,9 @@ class IngredientRecipe(models.Model):
         )
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
+
+        def __str__(self):
+            return f'{self.amount} {self.ingridiendt} в {self.recipe}'
 
 
 class Favorite(models.Model):

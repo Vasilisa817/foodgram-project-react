@@ -133,3 +133,7 @@ dmypy.json
 
 node_modules/
 /node_modules
+
+/static
+static
+static/

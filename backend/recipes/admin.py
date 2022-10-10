@@ -7,6 +7,11 @@ from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 
 class IngredientsInLine(admin.TabularInline):
     model = Recipe.ingredients.through
+    min_num = 1
+
+class TagInLine(admin.TabularInline):
+    model = Recipe.tags.through
+    min_num = 1
 
 
 @admin.register(Favorite)
@@ -30,7 +35,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ['tags']
     empty_value_display = EMPTY
     inlines = (
-        IngredientsInLine,
+        IngredientsInLine, TagInLine
     )
 
     def favorites(self, obj):
