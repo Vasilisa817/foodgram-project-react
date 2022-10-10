@@ -201,7 +201,10 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     def create_tags(self, tags, recipe):
         for tag in tags:
             bulk_objs = []
-            bulk_objs.append(RecipeTag(recipe=recipe, tag=get_object_or_404(Tag, id=tag)))
+            bulk_objs.append(RecipeTag(
+                recipe=recipe,
+                tag=get_object_or_404(Tag, id=tag)
+            ))
         RecipeTag.objects.bulk_create(bulk_objs)
 
     def create(self, validated_data):
@@ -224,7 +227,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
         for ingredient in ingredients:
             bulk_objs = []
-            bulk_objs.append(IngredientRecipe(                
+            bulk_objs.append(IngredientRecipe(
                 ingredient=ingredient['id'],
                 recipe=recipe,
                 amount=ingredient['amount']
@@ -286,7 +289,6 @@ class ShowSubscriptionsSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
-
 
     class Meta:
         model = User

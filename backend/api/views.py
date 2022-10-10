@@ -55,6 +55,7 @@ class ShowSubscriptionsView(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)
 
+
 class FavoriteView(mixins.CreateModelMixin,
                    mixins.ListModelMixin,
                    mixins.DestroyModelMixin,
@@ -66,7 +67,7 @@ class FavoriteView(mixins.CreateModelMixin,
     serializer_class = FavoriteSerializer
 
     def get_queryset(self):
-        recipe = get_object_or_404(Favorite, user = self.request.user)
+        recipe = get_object_or_404(Favorite, user=self.request.user)
         return recipe
 
     def create(self, serializer, **kwargs):
@@ -113,7 +114,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = RecipeFilter
-    
+
     def get_serializer_class(self):
         if self.action in SAFE_METHODS:
             return RecipeSerialiser
@@ -136,7 +137,7 @@ class ShoppingCartView(mixins.CreateModelMixin,
     queryset = ShoppingCart.objects.all()
 
     def get_queryset(self):
-        recipe = get_object_or_404(ShoppingCart, user = self.request.user)
+        recipe = get_object_or_404(ShoppingCart, user=self.request.user)
         return recipe
 
     def create(self, serializer, **kwargs):
@@ -152,9 +153,11 @@ class ShoppingCartView(mixins.CreateModelMixin,
             Recipe,
             pk=self.kwargs.get('recipe_id')
         )
-        ShoppingCart.objects.filter(recipe=recipe, user=self.request.user).delete()
+        ShoppingCart.objects.filter(
+            recipe=recipe, user=self.request.user
+        ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     def download_list(self, serializer, **kwargs):
         ingredient_list = "Cписок покупок:"
         ingredients = IngredientRecipe.objects.filter(
@@ -170,6 +173,8 @@ class ShoppingCartView(mixins.CreateModelMixin,
             if num < ingredients.count() - 1:
                 ingredient_list += ', '
         file = 'shopping_list'
-        response = HttpResponse(ingredient_list, 'Content-Type: application/pdf')
+        response = HttpResponse(
+            ingredient_list, 'Content-Type: application/pdf'
+        )
         response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
         return response

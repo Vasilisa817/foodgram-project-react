@@ -36,11 +36,10 @@ urlpatterns = [
     ),
     path(
         'users/subscriptions/',
-        ShowSubscriptionsView.as_view({'get': 'list',},),
+        ShowSubscriptionsView.as_view({'get': 'list', },),
         name='subscriptions'
     ),
     path('auth/', include('djoser.urls.authtoken')),
     path('', include('djoser.urls')),
     path('', include(router.urls)),
 ]
-
