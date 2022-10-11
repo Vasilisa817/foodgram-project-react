@@ -7,8 +7,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='1234567890')
 
 DEBUG = True
 
-#ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='localhost:8000').split(' ')
-ALLOWED_HOSTS = ['198.211.99.20', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='localhost:8000').split(' ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -73,17 +72,9 @@ REST_FRAMEWORK = {
 
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',)
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
 }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-'''
------> временно отключен для дебага
 
 DATABASES = {
     'default': {
@@ -95,7 +86,7 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', default='5432')
     }
 }
-'''
+
 AUTH_USER_MODEL = 'users.User'
 
 AUTH_PASSWORD_VALIDATORS = [

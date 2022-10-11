@@ -31,12 +31,12 @@ urlpatterns = [
     ),
     path(
         'users/<author_id>/subscribe/',
-        SubscribeView.as_view({'post': 'create', 'delete': 'destroy'},),
+        SubscribeView.as_view({'post': 'create', 'delete': 'destroy'}),
         name='subscribe'
     ),
     path(
         'users/subscriptions/',
-        ShowSubscriptionsView.as_view({'get': 'list', },),
+        ShowSubscriptionsView.as_view({'get': 'list', }),
         name='subscriptions'
     ),
     path('auth/', include('djoser.urls.authtoken')),

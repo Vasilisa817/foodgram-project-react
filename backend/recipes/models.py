@@ -157,6 +157,9 @@ class Favorite(models.Model):
             ),
         )
 
+        def __str__(self):
+            return f'{self.recipe} в избранном у {self.user}'
+
 
 class RecipeTag(models.Model):
     recipe = models.ForeignKey(
@@ -177,6 +180,9 @@ class RecipeTag(models.Model):
                 name='recipe_tag_unique'
             ),
         )
+
+        def __str__(self):
+            return f'{self.tag} в рецепте {self.recipe}'
 
 
 class ShoppingCart(models.Model):
@@ -200,3 +206,6 @@ class ShoppingCart(models.Model):
                 name='recipe_shopping_cart_unique',
             ),
         )
+
+        def __str__(self):
+            return f'{self.recipe} в списке покупок {self.user}'
