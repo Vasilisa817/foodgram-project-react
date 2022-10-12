@@ -17,6 +17,7 @@ class Command(BaseCommand):
             for row in reader:
                 name, unit = row
                 Ingredient.objects.get_or_create(
-                    name=name, measurement_unit=unit)
+                    name=name, measurement_unit=unit
+                )
         self.stdout.write(
             self.style.SUCCESS('Successfully loaded ingredients'))
