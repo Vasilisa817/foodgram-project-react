@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -78,12 +81,12 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', default='postgres'),
-        'USER': os.getenv('POSTGRES_USER', default='postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
-        'HOST': os.getenv('DB_HOST', default='db'),
-        'PORT': os.getenv('DB_PORT', default='5432')
+        'ENGINE': os.getenv('ENGINE', default='django.db.backends.postgresql'),
+        'NAME': os.getenv('NAME', default='postgres'),
+        'USER': os.getenv('USER', default='postgres'),
+        'PASSWORD': os.getenv('PASSWORD', default='postgres'),
+        'HOST': os.getenv('HOST', default='localhost'),
+        'PORT': os.getenv('PORT', default='5432')
     }
 }
 
