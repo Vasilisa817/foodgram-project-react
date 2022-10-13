@@ -102,6 +102,7 @@ jobs:
             echo DB_PORT=${{ secrets.PORT }} >> .env
             echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            sudo docker image prune
             sudo docker-compose up -d
             sudo docker-compose exec -T backend cd backend/
             sudo docker-compose exec -T backend python manage.py makemigrations
