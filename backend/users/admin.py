@@ -2,9 +2,11 @@ from django.contrib import admin
 
 from backend.settings import EMPTY
 
+from users.models import Follow
+'''
 from users.models import Follow, User
 
-'''
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'email', 'first_name', 'last_name')
@@ -12,6 +14,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('username', 'email')
     empty_value_display = EMPTY
 '''
+
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
