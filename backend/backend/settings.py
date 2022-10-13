@@ -144,5 +144,5 @@ EMPTY = '-'
 
 CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
+    'http://158.160.7.126:3000',
 )
