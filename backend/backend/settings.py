@@ -295,3 +295,9 @@ CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ORIGIN_WHITELIST = (
     'http://158.160.7.126:3000',
 )
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1",
+    "http://testserver",
+    "http://backend",
+]
