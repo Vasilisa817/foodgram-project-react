@@ -161,7 +161,13 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='1234567890')
 
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='158.160.7.126:8000').split(' ')
+ALLOWED_HOSTS =  [
+    'backend:8000',
+    '158.160.7.126:8000',
+    'localhost',
+    'backend',
+    '158.160.7.126'
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -294,6 +300,8 @@ EMPTY = '-'
 CORS_URLS_REGEX = r'^/api/.*$'
 CORS_ORIGIN_WHITELIST = (
     'http://158.160.7.126:3000',
+    'http://backend:3000',
+    'http://localhost:3000',
 )
 
 CSRF_TRUSTED_ORIGINS = [
