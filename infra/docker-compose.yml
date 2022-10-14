@@ -3,15 +3,16 @@ services:
   db:
     image: postgres:13.0-alpine
     volumes:
-      - /var/lib/postgresql/data/
+      - var/lib/postgresql/data/
     env_file:
       - ./.env
+    restart: always
 
   backend:
     image: vasilisa817/backend:latest
     volumes:
-      - ../static/:/app/static/
-      - ../media/:/app/media/recipes/
+      - static_value:/backend/static/
+      - media_value:/backend/media/
     depends_on:
       - db
     env_file:
