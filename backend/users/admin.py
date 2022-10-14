@@ -1,9 +1,9 @@
 from django.contrib import admin
 
 from backend.settings import EMPTY
-
-from users.models import Follow
 '''
+from users.models import Follow'''
+
 from users.models import Follow, User
 
 
@@ -13,7 +13,6 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('username', 'email')
     list_filter = ('username', 'email')
     empty_value_display = EMPTY
-'''
 
 
 @admin.register(Follow)
