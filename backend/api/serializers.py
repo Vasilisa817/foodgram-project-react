@@ -2,7 +2,7 @@ from djoser.serializers import UserCreateSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, validators
 
-from field import Base64ImageField
+from api.field import Base64ImageField
 from users.models import User, Follow
 from recipes.models import (
     Tag, Recipe, Ingredient,
