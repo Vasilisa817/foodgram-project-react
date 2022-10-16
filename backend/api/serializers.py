@@ -185,7 +185,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                     'ingredient': 'Ингредиенты должны быть уникальными!'
                 })
             _list_of_ingridients.append(i['id'])
-        return self.initial_data
+        return data
 
     def create_related_objects(self, recipe, ingredients, tags):
         ingredients_list = list()
