@@ -156,7 +156,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all())
-    image = Base64ImageField(max_length=None, required=False)
+    image = Base64ImageField(max_length=10000, required=False)
 
     class Meta:
         model = Recipe
