@@ -1,5 +1,4 @@
 from djoser.serializers import UserCreateSerializer
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers, validators
 
 from api.field import Base64ImageField
@@ -187,61 +186,43 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             _list_of_ingridients.append(i['id'])
         return self.initial_data
 
-    def create_ingredients(self, ingredients, recipe):
-        for i in ingredients:
-            bulk_objs = []
-            ingredient = get_object_or_404(Ingredient, id=i['id'])
-            bulk_objs.append(IngredientRecipe(
-                ingredient=ingredient,
+    def create_related_objects(self, recipe, ingredients, tags):
+        ingredients_list = list()
+        tags_list = list()
+        for ingredient in ingredients:
+            ingr_object = IngredientRecipe(
                 recipe=recipe,
-                amount=i['amount'])
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
             )
-        IngredientRecipe.objects.bulk_create(bulk_objs)
-
-    def create_tags(self, tags, recipe):
+            ingredients_list.append(ingr_object)
         for tag in tags:
-            bulk_objs = []
-            bulk_objs.append(RecipeTag(
-                recipe=recipe,
-                tag=get_object_or_404(Tag, id=tag)
-            ))
-        RecipeTag.objects.bulk_create(bulk_objs)
+            tag_object = RecipeTag(recipe=recipe, tag=tag)
+            tags_list.append(tag_object)
+
+        IngredientRecipe.objects.bulk_create(ingredients_list)
+        RecipeTag.objects.bulk_create(tags_list)
 
     def create(self, validated_data):
+        request = self.context.get('request')
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        author = self.context.get('request').user
-        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe = Recipe.objects.create(
+            author=request.user,
+            **validated_data
+        )
         recipe.save()
-        self.create_ingredients(ingredients, recipe)
-        self.create_tags(tags, recipe)
+        self.create_related_objects(recipe, ingredients, tags)
         return recipe
 
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.get(id=Recipe.objects
-                                    .filter(pk=instance.id)
-                                    .update(**validated_data))
+        Recipe.objects.filter(pk=instance.id).update(**validated_data)
+        recipe = Recipe.objects.get(id=instance.id)
         IngredientRecipe.objects.filter(recipe=recipe).delete()
         RecipeTag.objects.filter(recipe=recipe).delete()
-
-        for ingredient in ingredients:
-            bulk_objs = []
-            bulk_objs.append(IngredientRecipe(
-                ingredient=ingredient.get('id'),
-                recipe=recipe,
-                amount=ingredient.get('amount')
-            ))
-        IngredientRecipe.objects.bulk_create(bulk_objs)
-
-        for tag in tags:
-            bulk_objs = []
-            bulk_objs.append(RecipeTag(
-                recipe=recipe,
-                tag=tag
-            ))
-        RecipeTag.objects.bulk_create(bulk_objs)
+        self.create_related_objects(recipe, ingredients, tags)
         return recipe
 
     def to_representation(self, instance):
