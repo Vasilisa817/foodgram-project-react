@@ -192,7 +192,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         tags_list = list()
         for ingredient in ingredients:
             ingr_object = IngredientRecipe(
-                ingredient = get_object_or_404(
+                ingredient=get_object_or_404(
                     Ingredient,
                     id=ingredient['id']
                 ),
