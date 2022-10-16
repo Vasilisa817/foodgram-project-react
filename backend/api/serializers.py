@@ -192,12 +192,16 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         tags_list = list()
         for ingredient in ingredients:
             ingr_object = IngredientRecipe(
-                ingredient=get_object_or_404(
+                ingredient=(get_object_or_404(
                     Ingredient,
-                    id=ingredient['id']
-                ),
+                    id=ingredient.get('id')
+                ) or
+                get_object_or_404(
+                    Ingredient,
+                    name=ingredient.get('name')
+                )),
                 recipe=recipe,
-                amount=ingredient['amount']
+                amount=ingredient.get('amount')
             )
             ingredients_list.append(ingr_object)
         for tag in tags:
