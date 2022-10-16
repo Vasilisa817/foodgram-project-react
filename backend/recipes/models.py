@@ -70,31 +70,30 @@ class Recipe(models.Model):
         'Фото',
         blank=True,
         upload_to='recipes/images',
-        max_length=1000
     )
     text = models.TextField(
         'Описание рецепта',
         blank=False,
-        max_length=700
+        max_length=700,
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientRecipe',
         related_name='recipes',
-        verbose_name='Ингредиенты'
+        verbose_name='Ингредиенты',
     )
     tags = models.ManyToManyField(
         Tag,
         through='RecipeTag',
-        verbose_name='Теги'
+        verbose_name='Теги',
     )
     cooking_time = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)],
-        verbose_name='Время приготовления, мин.'
+        verbose_name='Время приготовления, мин.',
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     class Meta:
