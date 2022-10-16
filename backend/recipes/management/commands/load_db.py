@@ -21,7 +21,7 @@ class Command(BaseCommand):
                 data = csv.reader(file, delimiter=',')
                 for row in data:
                     Tag.objects.get_or_create(
-                        title=row[0],
+                        name=row[0],
                         color=row[1],
                         slug=row[2]
                     )
