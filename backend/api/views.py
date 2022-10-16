@@ -10,7 +10,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, IngredientRecipe,
                             ShoppingCart, Tag)
 from users.models import Follow, User
 
-from .filters import RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrAdminOrReadOnly
 from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
@@ -103,7 +103,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
-    search_fields = ['^name', ]
+    filterset_class = IngredientFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
