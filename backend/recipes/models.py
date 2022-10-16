@@ -70,6 +70,7 @@ class Recipe(models.Model):
         'Фото',
         blank=True,
         upload_to='recipes/images',
+        max_length=None,
     )
     text = models.TextField(
         'Описание рецепта',
