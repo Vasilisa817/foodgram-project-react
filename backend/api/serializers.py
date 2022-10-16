@@ -190,9 +190,9 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         ingredients_list = list()
         tags_list = list()
         for ingredient in ingredients:
-            ingr_object = IngredientRecipe(
-                recipe=recipe,
+            ingr_object = IngredientRecipe(                
                 ingredient=ingredient['id'],
+                recipe=recipe,
                 amount=ingredient['amount']
             )
             ingredients_list.append(ingr_object)
