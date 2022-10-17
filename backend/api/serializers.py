@@ -1,6 +1,5 @@
 from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers, validators
-from django.shortcuts import get_object_or_404
 
 from api.field import Base64ImageField
 from users.models import User, Follow
