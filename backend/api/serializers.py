@@ -190,23 +190,20 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     def create_related_objects(self, recipe, ingredients, tags):
         ingredients_list = list()
         tags_list = list()
-        for ingredient in ingredients:
+        for i in ingredients:
             ingr_object = IngredientRecipe(
-                ingredient=(get_object_or_404(
+                ingredient=get_object_or_404(
                     Ingredient,
-                    id=ingredient.get('id')
-                ) or get_object_or_404(
-                    Ingredient,
-                    name=ingredient.get('name')
-                )),
+                    id=i.get('id')
+                ),
                 recipe=recipe,
-                amount=ingredient.get('amount')
+                amount=i.get('amount')
             )
             ingredients_list.append(ingr_object)
-        for tag in tags:
+        for j in tags:
             tag_object = RecipeTag(
                 recipe=recipe,
-                tag=get_object_or_404(Tag, id=tag)
+                tag=get_object_or_404(Tag, id=j)
             )
             tags_list.append(tag_object)
 
