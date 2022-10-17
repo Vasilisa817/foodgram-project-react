@@ -156,7 +156,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all())
-    image = Base64ImageField()
+    image = Base64ImageField(max_length=1000)
 
     class Meta:
         model = Recipe
@@ -192,10 +192,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         tags_list = list()
         for i in ingredients:
             ingr_object = IngredientRecipe(
-                ingredient=get_object_or_404(
-                    Ingredient,
-                    id=i.get('id')
-                ),
+                ingredient=i.get('id'),
                 recipe=recipe,
                 amount=i.get('amount')
             )
