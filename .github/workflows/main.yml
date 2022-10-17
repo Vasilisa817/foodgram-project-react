@@ -102,8 +102,8 @@ jobs:
             echo DB_PORT=${{ secrets.PORT }} >> .env
             echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-            sudo docker image prune -f
             sudo docker-compose up -d
+            sudo docker image prune -f
             sudo docker-compose exec -T backend python manage.py makemigrations users
             sudo docker-compose exec -T backend python manage.py makemigrations recipes
             sudo docker-compose exec -T backend python manage.py collectstatic --noinput
