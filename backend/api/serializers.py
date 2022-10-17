@@ -200,7 +200,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         for j in tags:
             tag_object = RecipeTag(
                 recipe=recipe,
-                tag=get_object_or_404(Tag, id=j)
+                tag=j
             )
             tags_list.append(tag_object)
 
