@@ -195,8 +195,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 ingredient=(get_object_or_404(
                     Ingredient,
                     id=ingredient.get('id')
-                ) or
-                get_object_or_404(
+                ) or get_object_or_404(
                     Ingredient,
                     name=ingredient.get('name')
                 )),
